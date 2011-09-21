@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.patatepartie.infra</groupId>
+		<artifactId>tomcat-parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>tomcat-binaries</artifactId>
+	<packaging>rpm</packaging>
+
+	<properties>
+		<tomcat.artifact>apache-tomcat</tomcat.artifact>
+		<tomcat.version>7.0.21</tomcat.version>
+		<tomcat.install.dir>/opt/${tomcat.artifact}-${tomcat.version}</tomcat.install.dir>
+		<tomcat.unpack.dir>${project.build.directory}/dependency/${tomcat.artifact}-${tomcat.version}</tomcat.unpack.dir>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache</groupId>
+									<artifactId>${tomcat.artifact}</artifactId>
+									<version>${tomcat.version}</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<configuration>
+					<defaultUsername>root</defaultUsername>
+					<defaultGroupname>root</defaultGroupname>
+					<defaultDirmode>755</defaultDirmode>
+					<defaultFilemode>644</defaultFilemode>
+					
+					<copyright>2011, Bibi&amp;Co</copyright>
+					<group>Networking/Daemons</group>
+					<prefix>/opt/apache-tomcat</prefix>
+					<defineStatements>
+						<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+					</defineStatements>
+					<mappings>
+						<mapping>
+							<directory>${tomcat.install.dir}</directory>
+							<sources>
+								<source>
+									<location>${tomcat.unpack.dir}/LICENSE</location>
+								</source>
+								<source>
+									<location>${tomcat.unpack.dir}/NOTICE</location>
+								</source>
+								<source>
+									<location>${tomcat.unpack.dir}/RELEASE-NOTES</location>
+								</source>
+								<source>
+									<location>${tomcat.unpack.dir}/RUNNING.txt</location>
+								</source>
+							</sources>
+						</mapping>
+						
+						<mapping>
+							<directory>${tomcat.install.dir}/bin</directory>
+							<sources>
+								<source>
+									<location>${tomcat.unpack.dir}/bin</location>
+									<includes>
+										<include>*.jar</include>
+									</includes>
+								</source>
+							</sources>
+						</mapping>
+						
+						<mapping>
+							<directory>${tomcat.install.dir}/bin</directory>
+							<filemode>755</filemode>
+							<sources>
+								<source>
+									<location>${tomcat.unpack.dir}/bin</location>
+									<includes>
+										<include>*.sh</include>
+									</includes>
+								</source>
+							</sources>
+						</mapping>
+						
+						<mapping>
+							<directory>${tomcat.install.dir}/lib</directory>
+							<sources>
+								<source>
+									<location>${tomcat.unpack.dir}/lib</location>
+								</source>
+							</sources>
+						</mapping>
+					</mappings>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
