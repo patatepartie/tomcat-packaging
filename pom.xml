@@ -9,7 +9,15 @@
 
 	<modules>
 		<module>binaries</module>
+		<module>default</module>
 	</modules>
+
+	<properties>
+		<tomcat.artifact>apache-tomcat</tomcat.artifact>
+		<tomcat.version>7.0.21</tomcat.version>
+		<tomcat.install.dir>/opt/${tomcat.artifact}-${tomcat.version}</tomcat.install.dir>
+		<tomcat.unpack.dir>${project.build.directory}/dependency/${tomcat.artifact}-${tomcat.version}</tomcat.unpack.dir>
+	</properties>
 
 	<build>
 		<pluginManagement>
@@ -27,5 +35,50 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache</groupId>
+									<artifactId>${tomcat.artifact}</artifactId>
+									<version>${tomcat.version}</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<configuration>
+					<defaultUsername>root</defaultUsername>
+					<defaultGroupname>root</defaultGroupname>
+					<defaultDirmode>755</defaultDirmode>
+					<defaultFilemode>644</defaultFilemode>
+					
+					<copyright>2011, Bibi&amp;Co</copyright>
+					<group>Networking/Daemons</group>
+					
+					<defineStatements>
+						<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+					</defineStatements>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>
