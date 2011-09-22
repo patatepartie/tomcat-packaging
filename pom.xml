@@ -2,6 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<name>RPM Packaging for Tomcat</name>
+	<description>Parent project for packaging Tomcat and its instances as RPMs</description>
+
 	<groupId>fr.patatepartie.infra</groupId>
 	<artifactId>tomcat-parent</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
@@ -9,14 +12,17 @@
 
 	<modules>
 		<module>binaries</module>
-		<module>default</module>
+		<module>profiles</module>
 	</modules>
 
 	<properties>
-		<tomcat.artifact>apache-tomcat</tomcat.artifact>
-		<tomcat.version>7.0.21</tomcat.version>
-		<tomcat.install.dir>/opt/${tomcat.artifact}-${tomcat.version}</tomcat.install.dir>
-		<tomcat.unpack.dir>${project.build.directory}/dependency/${tomcat.artifact}-${tomcat.version}</tomcat.unpack.dir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<tomcat.distribution.artifact>apache-tomcat</tomcat.distribution.artifact>
+		<tomcat.distribution.version>7.0.21</tomcat.distribution.version>
+
+		<tomcat.install.dir>/opt/${tomcat.distribution.artifact}-${tomcat.distribution.version}</tomcat.install.dir>
+		<tomcat.unpack.dir>${project.build.directory}/dependency/${tomcat.distribution.artifact}-${tomcat.distribution.version}</tomcat.unpack.dir>
 	</properties>
 
 	<build>
@@ -27,58 +33,37 @@
 					<artifactId>rpm-maven-plugin</artifactId>
 					<version>2.1-alpha-1</version>
 					<extensions>true</extensions>
+					<configuration>
+						<defaultUsername>root</defaultUsername>
+						<defaultGroupname>root</defaultGroupname>
+						<defaultDirmode>755</defaultDirmode>
+						<defaultFilemode>644</defaultFilemode>
+
+						<copyright>2011, Bibi&amp;Co</copyright>
+						<group>Networking/Daemons</group>
+
+						<defineStatements>
+							<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+						</defineStatements>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
 					<version>2.3</version>
+					<configuration>
+						<artifactItems>
+							<artifactItem>
+								<groupId>org.apache</groupId>
+								<artifactId>${tomcat.distribution.artifact}</artifactId>
+								<version>${tomcat.distribution.version}</version>
+								<type>tar.gz</type>
+								<overWrite>true</overWrite>
+							</artifactItem>
+						</artifactItems>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
-
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.apache</groupId>
-									<artifactId>${tomcat.artifact}</artifactId>
-									<version>${tomcat.version}</version>
-									<type>tar.gz</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>rpm-maven-plugin</artifactId>
-				<configuration>
-					<defaultUsername>root</defaultUsername>
-					<defaultGroupname>root</defaultGroupname>
-					<defaultDirmode>755</defaultDirmode>
-					<defaultFilemode>644</defaultFilemode>
-					
-					<copyright>2011, Bibi&amp;Co</copyright>
-					<group>Networking/Daemons</group>
-					
-					<defineStatements>
-						<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
-					</defineStatements>
-				</configuration>
-			</plugin>
-		</plugins>
 	</build>
 </project>

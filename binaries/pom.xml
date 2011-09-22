@@ -8,18 +8,46 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
+	<name>Tomcat Binaries RPM Packaging</name>
+	<description>Package Tomcat Shared Binaries as RPM</description>
+	
 	<artifactId>tomcat-binaries</artifactId>
 	<packaging>rpm</packaging>
 
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>rpm-maven-plugin</artifactId>
 				<configuration>
-					<prefix>/opt/apache-tomcat</prefix>
+					<prefix>${tomcat.install.dir}</prefix>
 
 					<mappings>
+						<!-- So that erasing will remove the top directory -->
+						<mapping>
+							<directory>${tomcat.install.dir}</directory>
+						</mapping>
+						<mapping>
+							<directory>${tomcat.install.dir}/bin</directory>
+						</mapping>
+						<mapping>
+							<directory>${tomcat.install.dir}/lib</directory>
+						</mapping>
+						
 						<mapping>
 							<directory>${tomcat.install.dir}</directory>
 							<sources>

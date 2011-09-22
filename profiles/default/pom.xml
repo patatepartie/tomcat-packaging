@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>fr.patatepartie.infra</groupId>
+		<artifactId>profiles</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<name>Tomcat Instance Default RPM Packaging</name>
+	<description>Package Tomcat Instance Default as RPM</description>
+	
+	<artifactId>tomcat-default</artifactId>
+	<packaging>rpm</packaging>
+	
+	<properties>
+		<profile.name>default</profile.name>	
+		<profile.http.port>8100</profile.http.port>
+		<profile.https.port>8101</profile.https.port>
+		<profile.shutdown.port>8102</profile.shutdown.port>
+		<profile.ajp.port>8103</profile.ajp.port>
+	</properties>
+	
+	<build>
+		<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>rpm-maven-plugin</artifactId>
+				</plugin>
+			</plugins>
+	</build>
+</project>

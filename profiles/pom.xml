@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.patatepartie.infra</groupId>
+		<artifactId>tomcat-parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<name>RPM Packaging for Tomcat profiles</name>
+	<description>Parent project for packaging Tomcat instances (profiles) as RPMs</description>
+
+	<artifactId>profiles</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>default</module>
+	</modules>
+
+	<properties>
+		<profiles.install.dir>${tomcat.install.dir}/profile</profiles.install.dir>
+		<profile.install.dir>${profiles.install.dir}/${profile.name}</profile.install.dir>
+	</properties>
+
+	<build>
+		<resources>
+			<!-- We need a reference to this project resources in its children -->
+			<resource>
+				<directory>../src/main/scripts</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>unpack</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>unpack</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>rpm-maven-plugin</artifactId>
+					<configuration>
+						<requires>
+							<require>tomcat-binaries &gt;= ${project.version}</require>
+						</requires>
+
+						<mappings>
+							<!-- So that erasing will remove the top directory -->
+							<mapping>
+								<directory>${profile.install.dir}</directory>
+							</mapping>
+							<mapping>
+								<directory>${profile.install.dir}/bin</directory>
+							</mapping>
+							<mapping>
+								<directory>${profile.install.dir}/conf</directory>
+							</mapping>
+							<mapping>
+								<directory>${profile.install.dir}/webapps</directory>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/bin</directory>
+								<filemode>755</filemode>
+								<sources>
+									<source>
+										<location>${build.outputDirectory}</location>
+										<includes>
+											<include>*.sh</include>
+										</includes>
+									</source>
+								</sources>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/conf</directory>
+								<sources>
+									<source>
+										<location>${tomcat.unpack.dir}/conf</location>
+										<excludes>
+											<exclude>server.xml</exclude>
+										</excludes>
+									</source>
+								</sources>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/conf</directory>
+								<sources>
+									<source>
+										<location>${build.outputDirectory}/server.xml</location>
+									</source>
+								</sources>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/webapps/manager</directory>
+								<sources>
+									<source>
+										<location>${tomcat.unpack.dir}/webapps/manager</location>
+									</source>
+								</sources>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/webapps/host-manager</directory>
+								<sources>
+									<source>
+										<location>${tomcat.unpack.dir}/webapps/host-manager</location>
+									</source>
+								</sources>
+							</mapping>
+
+							<mapping>
+								<directory>${profile.install.dir}/logs</directory>
+							</mapping>
+						</mappings>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
